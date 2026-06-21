@@ -16,6 +16,9 @@ interface CardioDetailDao {
     @Query("SELECT * FROM cardio_details WHERE sessionId = :sessionId")
     fun observeForSession(sessionId: String): Flow<CardioDetailEntity?>
 
+    @Query("SELECT * FROM cardio_details WHERE sessionId = :sessionId")
+    suspend fun getForSession(sessionId: String): CardioDetailEntity?
+
     @Query("DELETE FROM cardio_details WHERE sessionId = :sessionId")
     suspend fun deleteForSession(sessionId: String)
 }

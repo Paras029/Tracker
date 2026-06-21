@@ -16,6 +16,9 @@ interface RacquetSportDetailDao {
     @Query("SELECT * FROM racquet_sport_details WHERE sessionId = :sessionId")
     fun observeForSession(sessionId: String): Flow<RacquetSportDetailEntity?>
 
+    @Query("SELECT * FROM racquet_sport_details WHERE sessionId = :sessionId")
+    suspend fun getForSession(sessionId: String): RacquetSportDetailEntity?
+
     @Query("DELETE FROM racquet_sport_details WHERE sessionId = :sessionId")
     suspend fun deleteForSession(sessionId: String)
 }

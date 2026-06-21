@@ -16,6 +16,9 @@ interface StrengthSetDao {
     @Query("SELECT * FROM strength_sets WHERE sessionId = :sessionId ORDER BY setOrder ASC")
     fun observeForSession(sessionId: String): Flow<List<StrengthSetEntity>>
 
+    @Query("SELECT * FROM strength_sets WHERE sessionId = :sessionId ORDER BY setOrder ASC")
+    suspend fun getForSession(sessionId: String): List<StrengthSetEntity>
+
     @Query("DELETE FROM strength_sets WHERE sessionId = :sessionId")
     suspend fun deleteForSession(sessionId: String)
 }

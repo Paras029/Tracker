@@ -2,10 +2,12 @@ package com.parasgarg.tracker.core.navigation
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -16,12 +18,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import com.parasgarg.tracker.data.model.WorkoutType
 import com.parasgarg.tracker.feature.dashboard.DashboardScreen
 import com.parasgarg.tracker.feature.history.HistoryScreen
+import com.parasgarg.tracker.feature.history.SessionDetailScreen
+import com.parasgarg.tracker.feature.logworkout.LogWorkoutPickerScreen
+import com.parasgarg.tracker.feature.logworkout.cardio.LogCardioScreen
+import com.parasgarg.tracker.feature.logworkout.racquet.LogRacquetScreen
+import com.parasgarg.tracker.feature.logworkout.strength.LogStrengthScreen
 import com.parasgarg.tracker.feature.reports.ReportsScreen
 import com.parasgarg.tracker.feature.settings.SettingsScreen
 
@@ -70,6 +80,11 @@ fun TrackerNavGraph() {
                 }
             }
         },
+        floatingActionButton = {
+            FloatingActionButton(onClick = { navController.navigate(Destination.LogWorkoutPicker.route) }) {
+                Icon(Icons.Filled.Add, contentDescription = "Log workout")
+            }
+        },
     ) { contentPadding ->
         NavHost(
             navController = navController,
@@ -77,9 +92,63 @@ fun TrackerNavGraph() {
             modifier = Modifier.padding(contentPadding),
         ) {
             composable(Destination.Dashboard.route) { DashboardScreen() }
-            composable(Destination.History.route) { HistoryScreen() }
+            composable(Destination.History.route) {
+                HistoryScreen(onSessionClick = { sessionId ->
+                    navController.navigate(Destination.SessionDetail.createRoute(sessionId))
+                })
+            }
             composable(Destination.Reports.route) { ReportsScreen() }
             composable(Destination.Settings.route) { SettingsScreen() }
+
+            composable(Destination.LogWorkoutPicker.route) {
+                LogWorkoutPickerScreen(
+                    onTypeSelected = { type ->
+                        val route = when (type) {
+                            WorkoutType.STRENGTH -> Destination.LogStrength.route
+                            WorkoutType.RUNNING, WorkoutType.SWIMMING ->
+                                Destination.LogCardio.createRoute(type.name)
+                            WorkoutType.BADMINTON, WorkoutType.TABLE_TENNIS ->
+                                Destination.LogRacquet.createRoute(type.name)
+                            WorkoutType.OTHER -> Destination.LogStrength.route
+                        }
+                        navController.navigate(route)
+                    },
+                    onBack = { navController.popBackStack() },
+                )
+            }
+            composable(Destination.LogStrength.route) {
+                LogStrengthScreen(
+                    onSaved = { navController.popBackStack(Destination.LogWorkoutPicker.route, inclusive = true) },
+                    onBack = { navController.popBackStack() },
+                )
+            }
+            composable(
+                route = Destination.LogCardio.route,
+                arguments = listOf(navArgument(Destination.LogCardio.ARG_TYPE) { type = NavType.StringType }),
+            ) {
+                LogCardioScreen(
+                    onSaved = { navController.popBackStack(Destination.LogWorkoutPicker.route, inclusive = true) },
+                    onBack = { navController.popBackStack() },
+                )
+            }
+            composable(
+                route = Destination.LogRacquet.route,
+                arguments = listOf(navArgument(Destination.LogRacquet.ARG_TYPE) { type = NavType.StringType }),
+            ) {
+                LogRacquetScreen(
+                    onSaved = { navController.popBackStack(Destination.LogWorkoutPicker.route, inclusive = true) },
+                    onBack = { navController.popBackStack() },
+                )
+            }
+            composable(
+                route = Destination.SessionDetail.route,
+                arguments = listOf(navArgument(Destination.SessionDetail.ARG_SESSION_ID) { type = NavType.StringType }),
+            ) {
+                SessionDetailScreen(
+                    onDeleted = { navController.popBackStack() },
+                    onBack = { navController.popBackStack() },
+                )
+            }
         }
     }
 }
