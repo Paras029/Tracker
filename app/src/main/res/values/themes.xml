@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Compose draws the actual UI; this base platform theme just controls the window
+         before Compose takes over (status bar, splash background). -->
+    <style name="Theme.Tracker" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/tracker_background</item>
+        <item name="android:statusBarColor">@color/tracker_background</item>
+    </style>
+</resources>
