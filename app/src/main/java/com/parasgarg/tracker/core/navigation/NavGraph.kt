@@ -25,6 +25,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.parasgarg.tracker.data.model.WorkoutType
+import com.parasgarg.tracker.feature.bodymetrics.BodyMetricsScreen
 import com.parasgarg.tracker.feature.dashboard.DashboardScreen
 import com.parasgarg.tracker.feature.history.HistoryScreen
 import com.parasgarg.tracker.feature.history.SessionDetailScreen
@@ -91,7 +92,14 @@ fun TrackerNavGraph() {
             startDestination = Destination.Dashboard.route,
             modifier = Modifier.padding(contentPadding),
         ) {
-            composable(Destination.Dashboard.route) { DashboardScreen() }
+            composable(Destination.Dashboard.route) {
+                DashboardScreen(
+                    onSessionClick = { sessionId ->
+                        navController.navigate(Destination.SessionDetail.createRoute(sessionId))
+                    },
+                    onBodyMetricsClick = { navController.navigate(Destination.BodyMetrics.route) },
+                )
+            }
             composable(Destination.History.route) {
                 HistoryScreen(onSessionClick = { sessionId ->
                     navController.navigate(Destination.SessionDetail.createRoute(sessionId))
@@ -148,6 +156,9 @@ fun TrackerNavGraph() {
                     onDeleted = { navController.popBackStack() },
                     onBack = { navController.popBackStack() },
                 )
+            }
+            composable(Destination.BodyMetrics.route) {
+                BodyMetricsScreen(onBack = { navController.popBackStack() })
             }
         }
     }

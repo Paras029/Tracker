@@ -23,4 +23,6 @@ sealed class Destination(val route: String) {
         const val ARG_SESSION_ID = "sessionId"
         fun createRoute(sessionId: String) = "history/$sessionId"
     }
+
+    data object BodyMetrics : Destination("body_metrics")
 }

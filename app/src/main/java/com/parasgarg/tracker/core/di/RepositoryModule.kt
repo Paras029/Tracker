@@ -1,5 +1,7 @@
 package com.parasgarg.tracker.core.di
 
+import com.parasgarg.tracker.data.repository.BodyMetricRepository
+import com.parasgarg.tracker.data.repository.BodyMetricRepositoryImpl
 import com.parasgarg.tracker.data.repository.WorkoutRepository
 import com.parasgarg.tracker.data.repository.WorkoutRepositoryImpl
 import dagger.Binds
@@ -15,4 +17,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindWorkoutRepository(impl: WorkoutRepositoryImpl): WorkoutRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindBodyMetricRepository(impl: BodyMetricRepositoryImpl): BodyMetricRepository
 }

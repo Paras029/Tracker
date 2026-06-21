@@ -18,6 +18,9 @@ interface BodyMetricDao {
     @Update
     suspend fun update(metric: BodyMetricEntity)
 
+    @Query("SELECT * FROM body_metrics WHERE id = :id")
+    suspend fun getById(id: String): BodyMetricEntity?
+
     @Query("SELECT * FROM body_metrics WHERE isDeleted = 0 ORDER BY recordedAt DESC")
     fun observeAll(): Flow<List<BodyMetricEntity>>
 
