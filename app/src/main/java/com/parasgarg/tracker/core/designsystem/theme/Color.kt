@@ -2,6 +2,17 @@ package com.parasgarg.tracker.core.designsystem.theme
 
 import androidx.compose.ui.graphics.Color
 
+// Nature-inspired semantic colors — used directly in Compose UI.
+val ForestGreen = Color(0xFF386641)
+val LightSage = Color(0xFFD7E8CD)
+val SageBg = Color(0xFFFBFDF7)
+val SoftDark = Color(0xFF191D17)
+val SlateMuted = Color(0xFF43493E)
+val BorderLight = Color(0xFFE2E6DB)
+val SectionLight = Color(0xFFF2F5EB)
+val FuelBrown = Color(0xFF9E5B2F)
+val FuelBg = Color(0xFFFEF7F2)
+
 // Seed: an energetic green, evoking activity/health, used to derive the Material3 scheme below.
 val SeedGreen = Color(0xFF1B5E20)
 

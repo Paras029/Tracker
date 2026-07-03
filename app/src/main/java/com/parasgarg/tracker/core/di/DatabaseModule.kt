@@ -8,6 +8,7 @@ import com.parasgarg.tracker.data.local.dao.CardioDetailDao
 import com.parasgarg.tracker.data.local.dao.RacquetSportDetailDao
 import com.parasgarg.tracker.data.local.dao.ReminderConfigDao
 import com.parasgarg.tracker.data.local.dao.StrengthSetDao
+import com.parasgarg.tracker.data.local.dao.UserProfileDao
 import com.parasgarg.tracker.data.local.dao.WorkoutSessionDao
 import dagger.Module
 import dagger.Provides
@@ -48,4 +49,8 @@ object DatabaseModule {
     @Provides
     fun provideReminderConfigDao(database: TrackerDatabase): ReminderConfigDao =
         database.reminderConfigDao()
+
+    @Provides
+    fun provideUserProfileDao(database: TrackerDatabase): UserProfileDao =
+        database.userProfileDao()
 }

@@ -1,5 +1,6 @@
 package com.parasgarg.tracker.core.database
 
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
@@ -8,12 +9,14 @@ import com.parasgarg.tracker.data.local.dao.CardioDetailDao
 import com.parasgarg.tracker.data.local.dao.RacquetSportDetailDao
 import com.parasgarg.tracker.data.local.dao.ReminderConfigDao
 import com.parasgarg.tracker.data.local.dao.StrengthSetDao
+import com.parasgarg.tracker.data.local.dao.UserProfileDao
 import com.parasgarg.tracker.data.local.dao.WorkoutSessionDao
 import com.parasgarg.tracker.data.local.entity.BodyMetricEntity
 import com.parasgarg.tracker.data.local.entity.CardioDetailEntity
 import com.parasgarg.tracker.data.local.entity.RacquetSportDetailEntity
 import com.parasgarg.tracker.data.local.entity.ReminderConfigEntity
 import com.parasgarg.tracker.data.local.entity.StrengthSetEntity
+import com.parasgarg.tracker.data.local.entity.UserProfileEntity
 import com.parasgarg.tracker.data.local.entity.WorkoutSessionEntity
 
 @Database(
@@ -24,9 +27,13 @@ import com.parasgarg.tracker.data.local.entity.WorkoutSessionEntity
         RacquetSportDetailEntity::class,
         BodyMetricEntity::class,
         ReminderConfigEntity::class,
+        UserProfileEntity::class,
     ],
-    version = 1,
+    version = 2,
     exportSchema = true,
+    autoMigrations = [
+        AutoMigration(from = 1, to = 2),
+    ],
 )
 @TypeConverters(Converters::class)
 abstract class TrackerDatabase : RoomDatabase() {
@@ -36,6 +43,7 @@ abstract class TrackerDatabase : RoomDatabase() {
     abstract fun racquetSportDetailDao(): RacquetSportDetailDao
     abstract fun bodyMetricDao(): BodyMetricDao
     abstract fun reminderConfigDao(): ReminderConfigDao
+    abstract fun userProfileDao(): UserProfileDao
 
     companion object {
         const val DATABASE_NAME = "tracker.db"

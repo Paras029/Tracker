@@ -33,6 +33,7 @@ import com.parasgarg.tracker.feature.logworkout.LogWorkoutPickerScreen
 import com.parasgarg.tracker.feature.logworkout.cardio.LogCardioScreen
 import com.parasgarg.tracker.feature.logworkout.racquet.LogRacquetScreen
 import com.parasgarg.tracker.feature.logworkout.strength.LogStrengthScreen
+import com.parasgarg.tracker.feature.profile.ProfileScreen
 import com.parasgarg.tracker.feature.reports.ReportsScreen
 import com.parasgarg.tracker.feature.settings.SettingsScreen
 
@@ -106,7 +107,12 @@ fun TrackerNavGraph() {
                 })
             }
             composable(Destination.Reports.route) { ReportsScreen() }
-            composable(Destination.Settings.route) { SettingsScreen() }
+            composable(Destination.Settings.route) {
+                SettingsScreen(onProfileClick = { navController.navigate(Destination.Profile.route) })
+            }
+            composable(Destination.Profile.route) {
+                ProfileScreen(onBack = { navController.popBackStack() })
+            }
 
             composable(Destination.LogWorkoutPicker.route) {
                 LogWorkoutPickerScreen(
