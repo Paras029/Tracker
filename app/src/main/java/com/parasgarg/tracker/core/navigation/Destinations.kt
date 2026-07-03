@@ -29,4 +29,5 @@ sealed class Destination(val route: String) {
     data object Profile : Destination("profile")
     data object Wearables : Destination("wearables")
     data object Clinical : Destination("clinical")
+    data object Reminders : Destination("reminders")
 }

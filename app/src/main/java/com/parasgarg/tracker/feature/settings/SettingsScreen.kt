@@ -29,6 +29,7 @@ fun SettingsScreen(
     onProfileClick: () -> Unit = {},
     onWearablesClick: () -> Unit = {},
     onClinicalClick: () -> Unit = {},
+    onRemindersClick: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -97,9 +98,12 @@ fun SettingsScreen(
 
             ListItem(
                 headlineContent = { Text("Reminders") },
-                supportingContent = { Text("Daily workout reminder — coming soon") },
+                supportingContent = { Text("Daily workout reminder time & days") },
                 leadingContent = { Icon(Icons.Filled.NotificationsNone, contentDescription = null) },
                 trailingContent = { Icon(Icons.Filled.ChevronRight, contentDescription = null) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onRemindersClick),
             )
 
             HorizontalDivider()
