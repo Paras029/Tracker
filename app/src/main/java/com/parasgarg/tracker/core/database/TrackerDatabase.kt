@@ -8,6 +8,7 @@ import com.parasgarg.tracker.data.local.dao.BodyMetricDao
 import com.parasgarg.tracker.data.local.dao.CardioDetailDao
 import com.parasgarg.tracker.data.local.dao.NutritionDao
 import com.parasgarg.tracker.data.local.dao.RacquetSportDetailDao
+import com.parasgarg.tracker.data.local.dao.WellnessDao
 import com.parasgarg.tracker.data.local.dao.ReminderConfigDao
 import com.parasgarg.tracker.data.local.dao.StrengthSetDao
 import com.parasgarg.tracker.data.local.dao.UserProfileDao
@@ -17,6 +18,7 @@ import com.parasgarg.tracker.data.local.entity.CardioDetailEntity
 import com.parasgarg.tracker.data.local.entity.CustomMealEntity
 import com.parasgarg.tracker.data.local.entity.FoodLogEntity
 import com.parasgarg.tracker.data.local.entity.RacquetSportDetailEntity
+import com.parasgarg.tracker.data.local.entity.WellnessMetricEntity
 import com.parasgarg.tracker.data.local.entity.ReminderConfigEntity
 import com.parasgarg.tracker.data.local.entity.StrengthSetEntity
 import com.parasgarg.tracker.data.local.entity.UserProfileEntity
@@ -33,12 +35,14 @@ import com.parasgarg.tracker.data.local.entity.WorkoutSessionEntity
         UserProfileEntity::class,
         FoodLogEntity::class,
         CustomMealEntity::class,
+        WellnessMetricEntity::class,
     ],
-    version = 3,
+    version = 4,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3),
+        AutoMigration(from = 3, to = 4),
     ],
 )
 @TypeConverters(Converters::class)
@@ -51,6 +55,7 @@ abstract class TrackerDatabase : RoomDatabase() {
     abstract fun reminderConfigDao(): ReminderConfigDao
     abstract fun userProfileDao(): UserProfileDao
     abstract fun nutritionDao(): NutritionDao
+    abstract fun wellnessDao(): WellnessDao
 
     companion object {
         const val DATABASE_NAME = "tracker.db"

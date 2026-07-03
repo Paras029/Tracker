@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.NotificationsNone
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Watch
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun SettingsScreen(
     onProfileClick: () -> Unit = {},
+    onWearablesClick: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -51,6 +53,25 @@ fun SettingsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable(onClick = onProfileClick),
+            )
+
+            HorizontalDivider()
+
+            Text(
+                text = "INTEGRATIONS",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            )
+
+            ListItem(
+                headlineContent = { Text("Connected Wearables") },
+                supportingContent = { Text("Samsung Health, Oura, Garmin, Fitbit, Whoop") },
+                leadingContent = { Icon(Icons.Filled.Watch, contentDescription = null) },
+                trailingContent = { Icon(Icons.Filled.ChevronRight, contentDescription = null) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onWearablesClick),
             )
 
             HorizontalDivider()

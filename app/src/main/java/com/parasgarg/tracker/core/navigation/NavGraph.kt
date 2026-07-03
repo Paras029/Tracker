@@ -38,6 +38,7 @@ import com.parasgarg.tracker.feature.nutrition.NutritionScreen
 import com.parasgarg.tracker.feature.profile.ProfileScreen
 import com.parasgarg.tracker.feature.reports.ReportsScreen
 import com.parasgarg.tracker.feature.settings.SettingsScreen
+import com.parasgarg.tracker.feature.wearables.WearablesScreen
 
 private data class BottomNavItem(
     val destination: Destination,
@@ -112,10 +113,16 @@ fun TrackerNavGraph() {
             composable(Destination.Reports.route) { ReportsScreen() }
             composable(Destination.Nutrition.route) { NutritionScreen() }
             composable(Destination.Settings.route) {
-                SettingsScreen(onProfileClick = { navController.navigate(Destination.Profile.route) })
+                SettingsScreen(
+                    onProfileClick = { navController.navigate(Destination.Profile.route) },
+                    onWearablesClick = { navController.navigate(Destination.Wearables.route) },
+                )
             }
             composable(Destination.Profile.route) {
                 ProfileScreen(onBack = { navController.popBackStack() })
+            }
+            composable(Destination.Wearables.route) {
+                WearablesScreen(onBack = { navController.popBackStack() })
             }
 
             composable(Destination.LogWorkoutPicker.route) {
