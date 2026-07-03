@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.parasgarg.tracker.core.database.TrackerDatabase
 import com.parasgarg.tracker.data.local.dao.BodyMetricDao
 import com.parasgarg.tracker.data.local.dao.CardioDetailDao
+import com.parasgarg.tracker.data.local.dao.ClinicalDao
 import com.parasgarg.tracker.data.local.dao.NutritionDao
 import com.parasgarg.tracker.data.local.dao.RacquetSportDetailDao
 import com.parasgarg.tracker.data.local.dao.WellnessDao
@@ -63,4 +64,8 @@ object DatabaseModule {
     @Provides
     fun provideWellnessDao(database: TrackerDatabase): WellnessDao =
         database.wellnessDao()
+
+    @Provides
+    fun provideClinicalDao(database: TrackerDatabase): ClinicalDao =
+        database.clinicalDao()
 }

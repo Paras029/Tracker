@@ -2,6 +2,8 @@ package com.parasgarg.tracker.core.di
 
 import com.parasgarg.tracker.data.repository.BodyMetricRepository
 import com.parasgarg.tracker.data.repository.BodyMetricRepositoryImpl
+import com.parasgarg.tracker.data.repository.ClinicalRepository
+import com.parasgarg.tracker.data.repository.ClinicalRepositoryImpl
 import com.parasgarg.tracker.data.repository.NutritionRepository
 import com.parasgarg.tracker.data.repository.NutritionRepositoryImpl
 import com.parasgarg.tracker.data.repository.WellnessRepository
@@ -39,4 +41,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindWellnessRepository(impl: WellnessRepositoryImpl): WellnessRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindClinicalRepository(impl: ClinicalRepositoryImpl): ClinicalRepository
 }

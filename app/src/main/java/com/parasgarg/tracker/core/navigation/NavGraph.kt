@@ -34,6 +34,7 @@ import com.parasgarg.tracker.feature.logworkout.LogWorkoutPickerScreen
 import com.parasgarg.tracker.feature.logworkout.cardio.LogCardioScreen
 import com.parasgarg.tracker.feature.logworkout.racquet.LogRacquetScreen
 import com.parasgarg.tracker.feature.logworkout.strength.LogStrengthScreen
+import com.parasgarg.tracker.feature.clinical.ClinicalScreen
 import com.parasgarg.tracker.feature.nutrition.NutritionScreen
 import com.parasgarg.tracker.feature.profile.ProfileScreen
 import com.parasgarg.tracker.feature.reports.ReportsScreen
@@ -116,6 +117,7 @@ fun TrackerNavGraph() {
                 SettingsScreen(
                     onProfileClick = { navController.navigate(Destination.Profile.route) },
                     onWearablesClick = { navController.navigate(Destination.Wearables.route) },
+                    onClinicalClick = { navController.navigate(Destination.Clinical.route) },
                 )
             }
             composable(Destination.Profile.route) {
@@ -123,6 +125,9 @@ fun TrackerNavGraph() {
             }
             composable(Destination.Wearables.route) {
                 WearablesScreen(onBack = { navController.popBackStack() })
+            }
+            composable(Destination.Clinical.route) {
+                ClinicalScreen(onBack = { navController.popBackStack() })
             }
 
             composable(Destination.LogWorkoutPicker.route) {

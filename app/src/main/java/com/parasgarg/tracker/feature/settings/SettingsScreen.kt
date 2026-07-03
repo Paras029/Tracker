@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Biotech
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.NotificationsNone
 import androidx.compose.material.icons.filled.Person
@@ -27,6 +28,7 @@ import androidx.compose.ui.unit.dp
 fun SettingsScreen(
     onProfileClick: () -> Unit = {},
     onWearablesClick: () -> Unit = {},
+    onClinicalClick: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -72,6 +74,16 @@ fun SettingsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable(onClick = onWearablesClick),
+            )
+
+            ListItem(
+                headlineContent = { Text("Clinical & BCA") },
+                supportingContent = { Text("Blood tests, body composition scans") },
+                leadingContent = { Icon(Icons.Filled.Biotech, contentDescription = null) },
+                trailingContent = { Icon(Icons.Filled.ChevronRight, contentDescription = null) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onClinicalClick),
             )
 
             HorizontalDivider()
