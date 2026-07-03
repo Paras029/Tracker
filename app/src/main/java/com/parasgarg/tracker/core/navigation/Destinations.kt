@@ -25,5 +25,6 @@ sealed class Destination(val route: String) {
     }
 
     data object BodyMetrics : Destination("body_metrics")
+    data object Nutrition : Destination("nutrition")
     data object Profile : Destination("profile")
 }

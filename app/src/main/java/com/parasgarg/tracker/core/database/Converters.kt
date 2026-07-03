@@ -5,6 +5,7 @@ import com.parasgarg.tracker.data.model.SyncStatus
 import com.parasgarg.tracker.data.model.WorkoutType
 import java.time.DayOfWeek
 import java.time.Instant
+import java.time.LocalDate
 
 class Converters {
 
@@ -25,6 +26,12 @@ class Converters {
 
     @TypeConverter
     fun toSyncStatus(value: String): SyncStatus = SyncStatus.valueOf(value)
+
+    @TypeConverter
+    fun fromLocalDate(value: LocalDate?): Long? = value?.toEpochDay()
+
+    @TypeConverter
+    fun toLocalDate(value: Long?): LocalDate? = value?.let(LocalDate::ofEpochDay)
 
     @TypeConverter
     fun fromDaysOfWeek(value: Set<DayOfWeek>): String = value.joinToString(",") { it.name }

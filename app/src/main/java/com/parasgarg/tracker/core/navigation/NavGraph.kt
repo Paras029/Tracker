@@ -6,6 +6,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -33,6 +34,7 @@ import com.parasgarg.tracker.feature.logworkout.LogWorkoutPickerScreen
 import com.parasgarg.tracker.feature.logworkout.cardio.LogCardioScreen
 import com.parasgarg.tracker.feature.logworkout.racquet.LogRacquetScreen
 import com.parasgarg.tracker.feature.logworkout.strength.LogStrengthScreen
+import com.parasgarg.tracker.feature.nutrition.NutritionScreen
 import com.parasgarg.tracker.feature.profile.ProfileScreen
 import com.parasgarg.tracker.feature.reports.ReportsScreen
 import com.parasgarg.tracker.feature.settings.SettingsScreen
@@ -47,6 +49,7 @@ private val bottomNavItems = listOf(
     BottomNavItem(Destination.Dashboard, "Dashboard", Icons.Filled.Home),
     BottomNavItem(Destination.History, "History", Icons.Filled.History),
     BottomNavItem(Destination.Reports, "Reports", Icons.Filled.BarChart),
+    BottomNavItem(Destination.Nutrition, "Nutrition", Icons.Filled.Restaurant),
     BottomNavItem(Destination.Settings, "Settings", Icons.Filled.Settings),
 )
 
@@ -107,6 +110,7 @@ fun TrackerNavGraph() {
                 })
             }
             composable(Destination.Reports.route) { ReportsScreen() }
+            composable(Destination.Nutrition.route) { NutritionScreen() }
             composable(Destination.Settings.route) {
                 SettingsScreen(onProfileClick = { navController.navigate(Destination.Profile.route) })
             }
