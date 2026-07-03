@@ -19,6 +19,9 @@ interface NutritionDao {
     @Query("UPDATE food_log SET isDeleted = 1, syncStatus = 'PENDING', updatedAt = :updatedAt WHERE id = :id")
     suspend fun softDeleteFoodLog(id: String, updatedAt: Long)
 
+    @Query("SELECT * FROM food_log WHERE date >= :fromEpochDay AND date <= :toEpochDay AND isDeleted = 0 ORDER BY date ASC, loggedAt ASC")
+    fun observeForDateRange(fromEpochDay: Long, toEpochDay: Long): Flow<List<FoodLogEntity>>
+
     @Query("SELECT * FROM custom_meals WHERE isDeleted = 0 ORDER BY name ASC")
     fun observeCustomMeals(): Flow<List<CustomMealEntity>>
 

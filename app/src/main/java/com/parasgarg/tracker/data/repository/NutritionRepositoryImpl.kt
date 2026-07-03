@@ -20,6 +20,11 @@ class NutritionRepositoryImpl @Inject constructor(
             entities.map { it.toDomain() }
         }
 
+    override fun observeEntriesForDateRange(from: LocalDate, to: LocalDate): Flow<List<NutritionEntry>> =
+        dao.observeForDateRange(from.toEpochDay(), to.toEpochDay()).map { entities ->
+            entities.map { it.toDomain() }
+        }
+
     override suspend fun logFood(entry: NutritionEntry) {
         dao.upsertFoodLog(entry.toEntity())
     }
