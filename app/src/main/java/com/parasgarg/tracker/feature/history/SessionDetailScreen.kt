@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.parasgarg.tracker.core.designsystem.GeminiCoachingCard
 import com.parasgarg.tracker.core.util.formatPace
 import com.parasgarg.tracker.core.util.formatSessionTime
 import com.parasgarg.tracker.core.util.workoutTypeLabel
@@ -106,6 +107,14 @@ fun SessionDetailScreen(
                     HorizontalDivider()
                     Text("Notes: $it")
                 }
+
+                HorizontalDivider()
+
+                GeminiCoachingCard(
+                    tip = uiState.coachingTip,
+                    isLoading = uiState.isTipLoading,
+                    onRequestTip = viewModel::requestWorkoutTip,
+                )
             }
         } else {
             Column(

@@ -83,6 +83,7 @@ dependencies {
     ksp(libs.room.compiler)
 
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.okhttp)
 
     implementation(libs.vico.compose)
     implementation(libs.vico.compose.m3)

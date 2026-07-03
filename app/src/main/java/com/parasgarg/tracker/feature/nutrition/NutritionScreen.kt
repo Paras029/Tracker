@@ -42,6 +42,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.parasgarg.tracker.core.designsystem.GeminiCoachingCard
 import com.parasgarg.tracker.data.model.domain.FoodOption
 import com.parasgarg.tracker.data.model.domain.MacroTotals
 import com.parasgarg.tracker.data.model.domain.MealType
@@ -87,6 +88,15 @@ fun NutritionScreen(
                 MacroSummaryCard(
                     totals = uiState.totals,
                     targets = uiState.targets,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                )
+            }
+
+            item {
+                GeminiCoachingCard(
+                    tip = uiState.coachingTip,
+                    isLoading = uiState.isTipLoading,
+                    onRequestTip = viewModel::requestNutritionTip,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                 )
             }

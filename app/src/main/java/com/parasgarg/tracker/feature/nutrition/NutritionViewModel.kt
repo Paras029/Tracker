@@ -2,6 +2,7 @@ package com.parasgarg.tracker.feature.nutrition
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.parasgarg.tracker.core.ai.GeminiService
 import com.parasgarg.tracker.data.model.domain.FoodOption
 import com.parasgarg.tracker.data.model.domain.MacroTotals
 import com.parasgarg.tracker.data.model.domain.MealType
@@ -20,6 +21,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
@@ -40,12 +42,15 @@ data class NutritionUiState(
     val targets: MacroTotals = MacroTotals(),
     val showAddSheet: Boolean = false,
     val addFood: AddFoodState = AddFoodState(),
+    val coachingTip: String? = null,
+    val isTipLoading: Boolean = false,
 )
 
 @HiltViewModel
 class NutritionViewModel @Inject constructor(
     private val nutritionRepository: NutritionRepository,
     private val profileRepository: UserProfileRepository,
+    private val geminiService: GeminiService,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(NutritionUiState())
@@ -133,6 +138,23 @@ class NutritionViewModel @Inject constructor(
 
     fun deleteEntry(id: String) {
         viewModelScope.launch { nutritionRepository.deleteEntry(id) }
+    }
+
+    fun requestNutritionTip() {
+        if (_uiState.value.isTipLoading) return
+        viewModelScope.launch {
+            _uiState.update { it.copy(isTipLoading = true) }
+            val profile = profileRepository.observe().first()
+            val state = _uiState.value
+            val tip = geminiService.getNutritionTip(
+                apiKey = profile?.geminiApiKey.orEmpty(),
+                calsToday = state.totals.caloriesKcal.toFloat(),
+                calTarget = state.targets.caloriesKcal.toFloat(),
+                proteinToday = state.totals.proteinG.toFloat(),
+                proteinTarget = state.targets.proteinG.toFloat(),
+            )
+            _uiState.update { it.copy(coachingTip = tip, isTipLoading = false) }
+        }
     }
 
     private fun computeTotals(entries: List<NutritionEntry>) = MacroTotals(
