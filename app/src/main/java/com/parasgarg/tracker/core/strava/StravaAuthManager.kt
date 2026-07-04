@@ -111,5 +111,26 @@ class StravaAuthManager @Inject constructor(
         }.getOrNull()
     }
 
+    /**
+     * Saves tokens pasted directly from strava.com/settings/api, skipping the OAuth flow.
+     * Fetches athlete ID from the API to confirm the token works and mark the account connected.
+     * Sets expiresAt = 0 so the first sync auto-refreshes to a fresh token.
+     */
+    suspend fun saveManualTokens(accessToken: String, refreshToken: String): Boolean {
+        if (accessToken.isBlank() || refreshToken.isBlank()) return false
+        val athleteId = fetchAthleteId(accessToken) ?: return false
+        prefsRepository.saveStravaTokens(accessToken, refreshToken, 0L, athleteId)
+        return true
+    }
+
+    private suspend fun fetchAthleteId(accessToken: String): Long? = runCatching {
+        val request = Request.Builder()
+            .url("https://www.strava.com/api/v3/athlete")
+            .addHeader("Authorization", "Bearer $accessToken")
+            .build()
+        val response = httpClient.newCall(request).execute()
+        JSONObject(response.body!!.string()).getLong("id")
+    }.getOrNull()
+
     suspend fun disconnect() = prefsRepository.clearStravaTokens()
 }

@@ -180,24 +180,47 @@ fun ProfileScreen(
                 SectionHeader("Strava Integration")
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
-                        "Get your Client ID and Client Secret from strava.com/settings/api",
+                        "All four values are on strava.com/settings/api under \"My API Application\". " +
+                            "Paste the Access Token and Refresh Token shown there to connect instantly — " +
+                            "no OAuth flow needed.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     OutlinedTextField(
                         value = form.stravaClientId,
                         onValueChange = viewModel::updateStravaClientId,
-                        label = { Text("Strava Client ID") },
-                        placeholder = { Text("Numeric ID from developer portal") },
+                        label = { Text("Client ID") },
+                        placeholder = { Text("Numeric ID (e.g. 12345)") },
                         modifier = Modifier.fillMaxWidth(),
                     )
                     OutlinedTextField(
                         value = form.stravaClientSecret,
                         onValueChange = viewModel::updateStravaClientSecret,
-                        label = { Text("Strava Client Secret") },
-                        placeholder = { Text("Secret string from developer portal") },
+                        label = { Text("Client Secret") },
+                        placeholder = { Text("Long string from developer portal") },
                         modifier = Modifier.fillMaxWidth(),
                     )
+                    OutlinedTextField(
+                        value = form.stravaAccessToken,
+                        onValueChange = viewModel::updateStravaAccessToken,
+                        label = { Text("Your Access Token") },
+                        placeholder = { Text("Shown on strava.com/settings/api") },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    OutlinedTextField(
+                        value = form.stravaRefreshToken,
+                        onValueChange = viewModel::updateStravaRefreshToken,
+                        label = { Text("Your Refresh Token") },
+                        placeholder = { Text("Shown on strava.com/settings/api") },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    if (uiState.stravaTokensAlreadySet) {
+                        Text(
+                            "Strava connected — leave token fields blank to keep existing tokens.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                    }
                 }
             }
 

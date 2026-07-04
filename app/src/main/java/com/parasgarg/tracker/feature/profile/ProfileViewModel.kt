@@ -2,6 +2,7 @@ package com.parasgarg.tracker.feature.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.parasgarg.tracker.core.strava.StravaAuthManager
 import com.parasgarg.tracker.data.model.domain.UserProfile
 import com.parasgarg.tracker.data.repository.UserProfileRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,16 +27,21 @@ data class ProfileForm(
     val isGeminiOfflineMode: Boolean = false,
     val stravaClientId: String = "",
     val stravaClientSecret: String = "",
+    // Paste directly from strava.com/settings/api — stored in DataStore, not Room
+    val stravaAccessToken: String = "",
+    val stravaRefreshToken: String = "",
 )
 
 data class ProfileUiState(
     val form: ProfileForm = ProfileForm(),
     val saved: Boolean = false,
+    val stravaTokensAlreadySet: Boolean = false,
 )
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val repository: UserProfileRepository,
+    private val stravaAuthManager: StravaAuthManager,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileUiState())
@@ -67,6 +73,11 @@ class ProfileViewModel @Inject constructor(
                 }
             }
         }
+        viewModelScope.launch {
+            stravaAuthManager.authState.collect { state ->
+                _uiState.update { it.copy(stravaTokensAlreadySet = state != com.parasgarg.tracker.core.strava.StravaAuthState.NOT_CONNECTED) }
+            }
+        }
     }
 
     fun updateName(v: String) = _uiState.update { it.copy(form = it.form.copy(name = v)) }
@@ -82,6 +93,8 @@ class ProfileViewModel @Inject constructor(
     fun toggleGeminiOfflineMode(v: Boolean) = _uiState.update { it.copy(form = it.form.copy(isGeminiOfflineMode = v)) }
     fun updateStravaClientId(v: String) = _uiState.update { it.copy(form = it.form.copy(stravaClientId = v)) }
     fun updateStravaClientSecret(v: String) = _uiState.update { it.copy(form = it.form.copy(stravaClientSecret = v)) }
+    fun updateStravaAccessToken(v: String) = _uiState.update { it.copy(form = it.form.copy(stravaAccessToken = v)) }
+    fun updateStravaRefreshToken(v: String) = _uiState.update { it.copy(form = it.form.copy(stravaRefreshToken = v)) }
 
     fun save() {
         viewModelScope.launch {
@@ -103,6 +116,12 @@ class ProfileViewModel @Inject constructor(
                     stravaClientSecret = form.stravaClientSecret.trim().ifBlank { null },
                 ),
             )
+            // Save Strava tokens to DataStore if the user pasted them from the settings page
+            val accessToken = form.stravaAccessToken.trim()
+            val refreshToken = form.stravaRefreshToken.trim()
+            if (accessToken.isNotBlank() && refreshToken.isNotBlank()) {
+                stravaAuthManager.saveManualTokens(accessToken, refreshToken)
+            }
             _uiState.update { it.copy(saved = true) }
         }
     }
