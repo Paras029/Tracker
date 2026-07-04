@@ -30,6 +30,10 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch { preferencesRepository.setUseMetric(useMetric) }
     }
 
+    fun signInWithGoogle(idToken: String) {
+        viewModelScope.launch { authRepository.signInWithGoogle(idToken) }
+    }
+
     fun signOut() {
         viewModelScope.launch { authRepository.signOut() }
     }
