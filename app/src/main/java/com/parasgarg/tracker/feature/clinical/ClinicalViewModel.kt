@@ -1,12 +1,14 @@
 package com.parasgarg.tracker.feature.clinical
 
+import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.parasgarg.tracker.core.ai.ImageScanService
 import com.parasgarg.tracker.data.model.domain.BcaReport
 import com.parasgarg.tracker.data.model.domain.BloodTestReport
 import com.parasgarg.tracker.data.repository.ClinicalRepository
+import com.parasgarg.tracker.data.repository.UserProfileRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
 import javax.inject.Inject
@@ -14,6 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -47,11 +50,16 @@ data class ClinicalUiState(
     val bloodTestForm: BloodTestForm = BloodTestForm(),
     val showBcaDialog: Boolean = false,
     val bcaForm: BcaForm = BcaForm(),
+    val isScanningBca: Boolean = false,
+    val isScanningBloodTest: Boolean = false,
+    val scanError: String? = null,
 )
 
 @HiltViewModel
 class ClinicalViewModel @Inject constructor(
     private val repository: ClinicalRepository,
+    private val profileRepository: UserProfileRepository,
+    private val imageScanService: ImageScanService,
 ) : ViewModel() {
 
     private val _dialogState = MutableStateFlow(ClinicalUiState())
@@ -121,4 +129,65 @@ class ClinicalViewModel @Inject constructor(
     }
 
     fun deleteBcaReport(id: String) = viewModelScope.launch { repository.deleteBcaReport(id) }
+
+    fun scanAndOpenBcaDialog(bitmap: Bitmap) {
+        if (_dialogState.value.isScanningBca) return
+        viewModelScope.launch {
+            _dialogState.update { it.copy(isScanningBca = true, scanError = null) }
+            val apiKey = profileRepository.observe().first()?.geminiApiKey.orEmpty()
+            val result = imageScanService.scanBcaReport(bitmap, apiKey)
+            if (result != null) {
+                _dialogState.update {
+                    it.copy(
+                        isScanningBca = false,
+                        showBcaDialog = true,
+                        bcaForm = BcaForm(
+                            bodyFatPercent = result.bodyFatPercent?.let { v -> "%.1f".format(v) } ?: "",
+                            skeletalMuscleMassKg = result.skeletalMuscleMassKg?.let { v -> "%.1f".format(v) } ?: "",
+                            visceralFatLevel = result.visceralFatLevel?.toString() ?: "",
+                            waterPercent = result.waterPercent?.let { v -> "%.1f".format(v) } ?: "",
+                            boneMassKg = result.boneMassKg?.let { v -> "%.1f".format(v) } ?: "",
+                            bmi = result.bmi?.let { v -> "%.1f".format(v) } ?: "",
+                        ),
+                    )
+                }
+            } else {
+                _dialogState.update {
+                    it.copy(isScanningBca = false, scanError = "Could not extract BCA data from the image. Check the image quality or enter values manually.")
+                }
+            }
+        }
+    }
+
+    fun scanAndOpenBloodTestDialog(bitmap: Bitmap) {
+        if (_dialogState.value.isScanningBloodTest) return
+        viewModelScope.launch {
+            _dialogState.update { it.copy(isScanningBloodTest = true, scanError = null) }
+            val apiKey = profileRepository.observe().first()?.geminiApiKey.orEmpty()
+            val result = imageScanService.scanBloodTestReport(bitmap, apiKey)
+            if (result != null) {
+                _dialogState.update {
+                    it.copy(
+                        isScanningBloodTest = false,
+                        showBloodTestDialog = true,
+                        bloodTestForm = BloodTestForm(
+                            hemoglobin = result.hemoglobinGdL?.let { v -> "%.1f".format(v) } ?: "",
+                            vitaminD3 = result.vitaminD3NgmL?.let { v -> "%.1f".format(v) } ?: "",
+                            vitaminB12 = result.vitaminB12PgmL?.let { v -> "${v.toInt()}" } ?: "",
+                            ldl = result.ldlMgdL?.let { v -> "${v.toInt()}" } ?: "",
+                            hdl = result.hdlMgdL?.let { v -> "${v.toInt()}" } ?: "",
+                            fastingBloodSugar = result.fastingGlucoseMgdL?.let { v -> "${v.toInt()}" } ?: "",
+                            hba1c = result.hba1cPercent?.let { v -> "%.1f".format(v) } ?: "",
+                        ),
+                    )
+                }
+            } else {
+                _dialogState.update {
+                    it.copy(isScanningBloodTest = false, scanError = "Could not extract blood test data from the image. Check the image quality or enter values manually.")
+                }
+            }
+        }
+    }
+
+    fun clearScanError() = _dialogState.update { it.copy(scanError = null) }
 }

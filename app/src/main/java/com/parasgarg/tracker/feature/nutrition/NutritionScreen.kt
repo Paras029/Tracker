@@ -1,12 +1,19 @@
 package com.parasgarg.tracker.feature.nutrition
 
+import android.graphics.BitmapFactory
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
@@ -15,8 +22,12 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.outlined.CameraAlt
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
@@ -36,20 +47,31 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.parasgarg.tracker.core.designsystem.GeminiCoachingCard
+import com.parasgarg.tracker.core.util.renderPdfFirstPage
 import com.parasgarg.tracker.data.model.domain.FoodOption
 import com.parasgarg.tracker.data.model.domain.MacroTotals
 import com.parasgarg.tracker.data.model.domain.MealType
 import com.parasgarg.tracker.data.model.domain.NutritionEntry
+import java.io.File
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import kotlin.math.roundToInt
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,6 +79,44 @@ fun NutritionScreen(
     viewModel: NutritionViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    var showScanPicker by remember { mutableStateOf(false) }
+    var cameraUri by remember { mutableStateOf<Uri?>(null) }
+
+    fun onScanBitmapReady(uri: Uri) {
+        scope.launch {
+            val bmp = withContext(Dispatchers.IO) {
+                context.contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it) }
+            }
+            bmp?.let { viewModel.scanFoodLabel(it) }
+        }
+    }
+
+    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if (success) cameraUri?.let { onScanBitmapReady(it) }
+    }
+
+    val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        uri?.let {
+            scope.launch {
+                val bmp = withContext(Dispatchers.IO) {
+                    context.contentResolver.openInputStream(it)?.use { s -> BitmapFactory.decodeStream(s) }
+                }
+                bmp?.let { b -> viewModel.scanFoodLabel(b) }
+            }
+        }
+    }
+
+    val pdfLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        uri?.let {
+            scope.launch {
+                val bmp = withContext(Dispatchers.IO) { renderPdfFirstPage(context, it) }
+                bmp?.let { b -> viewModel.scanFoodLabel(b) }
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -136,10 +196,48 @@ fun NutritionScreen(
                     onMealTypeChange = viewModel::updateMealType,
                     onConfirm = viewModel::logFood,
                     onDismiss = viewModel::closeAddSheet,
+                    onScanLabel = { showScanPicker = true },
                 )
             }
         }
+
+        if (showScanPicker) {
+            ScanSourcePickerDialog(
+                onCamera = {
+                    showScanPicker = false
+                    val file = File(context.cacheDir, "scan_${System.currentTimeMillis()}.jpg")
+                    val uri = FileProvider.getUriForFile(context, "com.parasgarg.tracker.fileprovider", file)
+                    cameraUri = uri
+                    cameraLauncher.launch(uri)
+                },
+                onGallery = { showScanPicker = false; galleryLauncher.launch("image/*") },
+                onPdf = { showScanPicker = false; pdfLauncher.launch(arrayOf("application/pdf")) },
+                onDismiss = { showScanPicker = false },
+            )
+        }
     }
+}
+
+@Composable
+private fun ScanSourcePickerDialog(
+    onCamera: () -> Unit,
+    onGallery: () -> Unit,
+    onPdf: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Scan nutrition label") },
+        text = { Text("Choose how to import the nutrition label image.") },
+        confirmButton = {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Button(onClick = onCamera, modifier = Modifier.fillMaxWidth()) { Text("Take photo") }
+                Button(onClick = onGallery, modifier = Modifier.fillMaxWidth()) { Text("Choose from gallery") }
+                Button(onClick = onPdf, modifier = Modifier.fillMaxWidth()) { Text("Import PDF") }
+            }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+    )
 }
 
 @Composable
@@ -270,6 +368,7 @@ private fun AddFoodSheetContent(
     onMealTypeChange: (MealType) -> Unit,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
+    onScanLabel: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -277,7 +376,30 @@ private fun AddFoodSheetContent(
             .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text("Add Food", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(bottom = 4.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text("Add Food", style = MaterialTheme.typography.titleMedium)
+            if (state.isScanningLabel) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                    Text("Scanning…", style = MaterialTheme.typography.bodySmall)
+                }
+            } else {
+                TextButton(onClick = onScanLabel) {
+                    Icon(
+                        Icons.Outlined.CameraAlt,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(18.dp)
+                            .padding(end = 4.dp),
+                    )
+                    Text("Scan label")
+                }
+            }
+        }
 
         OutlinedTextField(
             value = state.query,

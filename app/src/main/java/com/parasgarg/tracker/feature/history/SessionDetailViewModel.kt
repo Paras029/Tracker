@@ -73,7 +73,8 @@ class SessionDetailViewModel @Inject constructor(
         val session = uiState.value.session ?: return
         viewModelScope.launch {
             _tipState.value = Pair(null, true)
-            val apiKey = profileRepository.observe().first()?.geminiApiKey.orEmpty()
+            val profile = profileRepository.observe().first()
+            val apiKey = profile?.geminiApiKey.orEmpty()
             val distanceKm = (session.detail as? WorkoutDetail.Cardio)
                 ?.distanceMeters?.div(1000.0)
             val tip = geminiService.getWorkoutTip(
@@ -81,6 +82,9 @@ class SessionDetailViewModel @Inject constructor(
                 workoutType = workoutTypeLabel(session.type),
                 durationMinutes = session.durationMinutes,
                 distanceKm = distanceKm,
+                perceivedEffort = session.perceivedEffort,
+                fitnessGoal = profile?.fitnessGoal,
+                startTime = session.startTime,
             )
             _tipState.value = Pair(tip, false)
         }

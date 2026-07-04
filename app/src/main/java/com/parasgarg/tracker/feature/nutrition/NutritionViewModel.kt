@@ -1,8 +1,11 @@
 package com.parasgarg.tracker.feature.nutrition
 
+import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.parasgarg.tracker.core.ai.FoodLabelScanResult
 import com.parasgarg.tracker.core.ai.GeminiService
+import com.parasgarg.tracker.core.ai.ImageScanService
 import com.parasgarg.tracker.data.model.domain.FoodOption
 import com.parasgarg.tracker.data.model.domain.MacroTotals
 import com.parasgarg.tracker.data.model.domain.MealType
@@ -33,6 +36,7 @@ data class AddFoodState(
     val selected: FoodOption? = null,
     val servingGrams: String = "100",
     val mealType: MealType = MealType.BREAKFAST,
+    val isScanningLabel: Boolean = false,
 )
 
 data class NutritionUiState(
@@ -51,6 +55,7 @@ class NutritionViewModel @Inject constructor(
     private val nutritionRepository: NutritionRepository,
     private val profileRepository: UserProfileRepository,
     private val geminiService: GeminiService,
+    private val imageScanService: ImageScanService,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(NutritionUiState())
@@ -152,8 +157,53 @@ class NutritionViewModel @Inject constructor(
                 calTarget = state.targets.caloriesKcal.toFloat(),
                 proteinToday = state.totals.proteinG.toFloat(),
                 proteinTarget = state.targets.proteinG.toFloat(),
+                carbsToday = state.totals.carbsG.toFloat(),
+                carbsTarget = state.targets.carbsG.toFloat(),
+                fatToday = state.totals.fatG.toFloat(),
+                fatTarget = state.targets.fatG.toFloat(),
+                fitnessGoal = profile?.fitnessGoal,
+                mealCount = state.entries.size,
             )
             _uiState.update { it.copy(coachingTip = tip, isTipLoading = false) }
+        }
+    }
+
+    fun scanFoodLabel(bitmap: Bitmap) {
+        if (_uiState.value.addFood.isScanningLabel) return
+        viewModelScope.launch {
+            _uiState.update { it.copy(addFood = it.addFood.copy(isScanningLabel = true)) }
+            val apiKey = profileRepository.observe().first()?.geminiApiKey.orEmpty()
+            val result = imageScanService.scanFoodLabel(bitmap, apiKey)
+            if (result != null) {
+                applyFoodLabelScan(result)
+            } else {
+                _uiState.update { it.copy(addFood = it.addFood.copy(isScanningLabel = false)) }
+            }
+        }
+    }
+
+    private fun applyFoodLabelScan(result: FoodLabelScanResult) {
+        val servingGrams = result.servingGrams?.takeIf { it > 0 } ?: 100.0
+        val factor = 100.0 / servingGrams
+        val food = FoodOption(
+            id = "scanned_${System.currentTimeMillis()}",
+            name = result.foodName ?: "Scanned food",
+            caloriesPer100g = (result.caloriesKcal ?: 0.0) * factor,
+            proteinPer100g = (result.proteinG ?: 0.0) * factor,
+            carbsPer100g = (result.carbsG ?: 0.0) * factor,
+            fatPer100g = (result.fatG ?: 0.0) * factor,
+        )
+        _uiState.update {
+            it.copy(
+                showAddSheet = true,
+                addFood = it.addFood.copy(
+                    selected = food,
+                    query = food.name,
+                    servingGrams = servingGrams.toInt().toString(),
+                    results = emptyList(),
+                    isScanningLabel = false,
+                ),
+            )
         }
     }
 
