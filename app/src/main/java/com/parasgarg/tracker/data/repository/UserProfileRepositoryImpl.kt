@@ -31,6 +31,8 @@ private fun UserProfileEntity.toDomain() = UserProfile(
     targetFatG = targetFatG,
     geminiApiKey = geminiApiKey,
     isGeminiOfflineMode = isGeminiOfflineMode,
+    stravaClientId = stravaClientId,
+    stravaClientSecret = stravaClientSecret,
 )
 
 private fun UserProfile.toEntity() = UserProfileEntity(
@@ -46,5 +48,7 @@ private fun UserProfile.toEntity() = UserProfileEntity(
     targetFatG = targetFatG,
     geminiApiKey = geminiApiKey,
     isGeminiOfflineMode = isGeminiOfflineMode,
+    stravaClientId = stravaClientId,
+    stravaClientSecret = stravaClientSecret,
     updatedAt = Instant.now(),
 )

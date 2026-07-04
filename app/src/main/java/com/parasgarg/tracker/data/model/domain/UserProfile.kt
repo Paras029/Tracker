@@ -12,4 +12,6 @@ data class UserProfile(
     val targetFatG: Double? = null,
     val geminiApiKey: String? = null,
     val isGeminiOfflineMode: Boolean = false,
+    val stravaClientId: String? = null,
+    val stravaClientSecret: String? = null,
 )

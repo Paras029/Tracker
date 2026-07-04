@@ -32,6 +32,9 @@ class WorkoutRepositoryImpl @Inject constructor(
     override fun observeSession(id: String): Flow<WorkoutSession?> =
         sessionDao.observeById(id).map { it?.toDomain() }
 
+    override suspend fun getSessionById(id: String): WorkoutSession? =
+        sessionDao.getById(id)?.toDomain()
+
     override suspend fun saveSession(session: WorkoutSession) {
         val now = Instant.now()
         val existing = sessionDao.getById(session.id)
@@ -60,6 +63,32 @@ class WorkoutRepositoryImpl @Inject constructor(
                 detail.sets.map { it.toEntity(session.id) },
             )
             is WorkoutDetail.Cardio -> cardioDetailDao.upsert(detail.toEntity(session.id))
+            is WorkoutDetail.Racquet -> racquetSportDetailDao.upsert(detail.toEntity(session.id))
+            WorkoutDetail.None -> Unit
+        }
+    }
+
+    override suspend fun importExternalSession(session: WorkoutSession, sourceId: String, externalId: String) {
+        val now = Instant.now()
+        sessionDao.upsert(
+            WorkoutSessionEntity(
+                id = session.id,
+                type = session.type,
+                startTime = session.startTime,
+                durationMinutes = session.durationMinutes,
+                notes = session.notes,
+                perceivedEffort = session.perceivedEffort,
+                sourceId = sourceId,
+                externalId = externalId,
+                syncStatus = SyncStatus.SYNCED,
+                isDeleted = false,
+                createdAt = now,
+                updatedAt = now,
+            ),
+        )
+        when (val detail = session.detail) {
+            is WorkoutDetail.Cardio -> cardioDetailDao.upsert(detail.toEntity(session.id))
+            is WorkoutDetail.Strength -> strengthSetDao.upsertAll(detail.sets.map { it.toEntity(session.id) })
             is WorkoutDetail.Racquet -> racquetSportDetailDao.upsert(detail.toEntity(session.id))
             WorkoutDetail.None -> Unit
         }

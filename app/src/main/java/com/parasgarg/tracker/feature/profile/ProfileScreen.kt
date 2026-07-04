@@ -176,6 +176,32 @@ fun ProfileScreen(
             }
 
             item {
+                HorizontalDivider()
+                SectionHeader("Strava Integration")
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        "Get your Client ID and Client Secret from strava.com/settings/api",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    OutlinedTextField(
+                        value = form.stravaClientId,
+                        onValueChange = viewModel::updateStravaClientId,
+                        label = { Text("Strava Client ID") },
+                        placeholder = { Text("Numeric ID from developer portal") },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    OutlinedTextField(
+                        value = form.stravaClientSecret,
+                        onValueChange = viewModel::updateStravaClientSecret,
+                        label = { Text("Strava Client Secret") },
+                        placeholder = { Text("Secret string from developer portal") },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+            }
+
+            item {
                 Button(
                     onClick = viewModel::save,
                     modifier = Modifier

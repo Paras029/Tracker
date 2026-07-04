@@ -24,6 +24,8 @@ data class ProfileForm(
     val targetFatG: String = "",
     val geminiApiKey: String = "",
     val isGeminiOfflineMode: Boolean = false,
+    val stravaClientId: String = "",
+    val stravaClientSecret: String = "",
 )
 
 data class ProfileUiState(
@@ -57,6 +59,8 @@ class ProfileViewModel @Inject constructor(
                                 targetFatG = profile.targetFatG?.toString() ?: "",
                                 geminiApiKey = profile.geminiApiKey ?: "",
                                 isGeminiOfflineMode = profile.isGeminiOfflineMode,
+                                stravaClientId = profile.stravaClientId ?: "",
+                                stravaClientSecret = profile.stravaClientSecret ?: "",
                             ),
                         )
                     }
@@ -76,6 +80,8 @@ class ProfileViewModel @Inject constructor(
     fun updateTargetFat(v: String) = _uiState.update { it.copy(form = it.form.copy(targetFatG = v)) }
     fun updateGeminiApiKey(v: String) = _uiState.update { it.copy(form = it.form.copy(geminiApiKey = v)) }
     fun toggleGeminiOfflineMode(v: Boolean) = _uiState.update { it.copy(form = it.form.copy(isGeminiOfflineMode = v)) }
+    fun updateStravaClientId(v: String) = _uiState.update { it.copy(form = it.form.copy(stravaClientId = v)) }
+    fun updateStravaClientSecret(v: String) = _uiState.update { it.copy(form = it.form.copy(stravaClientSecret = v)) }
 
     fun save() {
         viewModelScope.launch {
@@ -93,6 +99,8 @@ class ProfileViewModel @Inject constructor(
                     targetFatG = form.targetFatG.toDoubleOrNull(),
                     geminiApiKey = form.geminiApiKey.trim().ifBlank { null },
                     isGeminiOfflineMode = form.isGeminiOfflineMode,
+                    stravaClientId = form.stravaClientId.trim().ifBlank { null },
+                    stravaClientSecret = form.stravaClientSecret.trim().ifBlank { null },
                 ),
             )
             _uiState.update { it.copy(saved = true) }

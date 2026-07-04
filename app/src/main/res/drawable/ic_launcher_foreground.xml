@@ -4,11 +4,22 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+
+    <!-- Subtle glow ring -->
     <path
         android:fillColor="#00000000"
-        android:pathData="M24,58 L40,58 L48,38 L60,78 L68,58 L84,58"
+        android:pathData="M54,20 A34,34 0 0,1 88,54 A34,34 0 0,1 54,88 A34,34 0 0,1 20,54 A34,34 0 0,1 54,20"
         android:strokeColor="#FFFFFF"
-        android:strokeWidth="6"
+        android:strokeAlpha="0.15"
+        android:strokeWidth="1.5" />
+
+    <!-- ECG waveform: flat → P-wave → QRS complex → T-wave → flat -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M10,56 L26,56 C30,56 32,48 36,48 C40,48 40,56 42,56 L44,60 L46,28 L48,72 L50,56 C56,56 58,40 64,40 C70,40 72,56 76,56 L98,56"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="5.5"
         android:strokeLineCap="round"
         android:strokeLineJoin="round" />
+
 </vector>

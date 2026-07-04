@@ -28,6 +28,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Sync
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -44,6 +46,7 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val useMetric by viewModel.useMetric.collectAsState()
+    val currentUser by viewModel.currentUser.collectAsState()
 
     Scaffold(
         modifier = modifier,
@@ -118,18 +121,46 @@ fun SettingsScreen(
 
             SectionLabel("SYNC & ACCOUNT")
 
-            ListItem(
-                headlineContent = { Text("Cloud sync") },
-                supportingContent = { Text("Data stored locally. Firebase sync available after adding google-services.json.") },
-                leadingContent = { Icon(Icons.Filled.Info, contentDescription = null) },
-            )
+            if (!viewModel.isFirebaseAvailable) {
+                ListItem(
+                    headlineContent = { Text("Firebase not configured") },
+                    supportingContent = {
+                        Text("Place google-services.json in app/ directory and rebuild to enable cloud backup & sync.")
+                    },
+                    leadingContent = { Icon(Icons.Filled.Info, contentDescription = null) },
+                )
+            } else if (currentUser != null) {
+                ListItem(
+                    headlineContent = { Text(currentUser!!.displayName ?: currentUser!!.email ?: "Signed in") },
+                    supportingContent = { Text("Cloud sync active · ${currentUser!!.email ?: ""}") },
+                    leadingContent = { Icon(Icons.Filled.AccountCircle, contentDescription = null) },
+                    trailingContent = {
+                        Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                            Icon(Icons.Filled.Sync, contentDescription = "Synced", tint = MaterialTheme.colorScheme.primary)
+                        }
+                    },
+                )
+                ListItem(
+                    headlineContent = { Text("Sign out") },
+                    leadingContent = { Icon(Icons.Filled.Info, contentDescription = null) },
+                    modifier = Modifier.fillMaxWidth().clickable(onClick = viewModel::signOut),
+                )
+            } else {
+                ListItem(
+                    headlineContent = { Text("Sign in with Google") },
+                    supportingContent = { Text("Back up your data and sync across devices") },
+                    leadingContent = { Icon(Icons.Filled.AccountCircle, contentDescription = null) },
+                    trailingContent = { Icon(Icons.Filled.ChevronRight, contentDescription = null) },
+                    modifier = Modifier.fillMaxWidth().clickable { /* TODO: launch Google sign-in */ },
+                )
+            }
 
             HorizontalDivider()
 
             SectionLabel("ABOUT")
 
             ListItem(
-                headlineContent = { Text("Tracker") },
+                headlineContent = { Text("Vitals") },
                 supportingContent = { Text("Version 1.0 · Personal health & fitness tracker") },
                 leadingContent = { Icon(Icons.Filled.Info, contentDescription = null) },
             )

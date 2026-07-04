@@ -8,6 +8,11 @@ plugins {
     alias(libs.plugins.room)
 }
 
+// Firebase: apply google-services only when google-services.json is present
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+}
+
 android {
     namespace = "com.parasgarg.tracker"
     compileSdk {
@@ -88,6 +93,28 @@ dependencies {
 
     implementation(libs.vico.compose)
     implementation(libs.vico.compose.m3)
+
+    // Firebase (active once google-services.json is placed in app/)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.firestore.ktx)
+    implementation(libs.kotlinx.coroutines.play.services)
+
+    // Credential Manager for Google Sign-in
+    implementation(libs.credentials)
+    implementation(libs.credentials.play.services.auth)
+    implementation(libs.googleid)
+
+    // WorkManager + Hilt integration
+    implementation(libs.work.runtime.ktx)
+    implementation(libs.hilt.work)
+    ksp(libs.hilt.work.compiler)
+
+    // Health Connect (uncomment when health-connect-client >= 1.1.0 is available)
+    // implementation(libs.health.connect.client)
+
+    // Chrome Custom Tabs (Strava OAuth)
+    implementation(libs.browser)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
