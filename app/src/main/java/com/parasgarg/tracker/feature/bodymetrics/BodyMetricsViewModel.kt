@@ -3,6 +3,7 @@ package com.parasgarg.tracker.feature.bodymetrics
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.parasgarg.tracker.data.model.domain.BodyMetric
+import com.parasgarg.tracker.data.preferences.UserPreferencesRepository
 import com.parasgarg.tracker.data.repository.BodyMetricRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.Instant
@@ -26,11 +27,13 @@ data class BodyMetricFormState(
 data class BodyMetricsUiState(
     val metrics: List<BodyMetric> = emptyList(),
     val form: BodyMetricFormState = BodyMetricFormState(),
+    val useMetric: Boolean = true,
 )
 
 @HiltViewModel
 class BodyMetricsViewModel @Inject constructor(
     private val bodyMetricRepository: BodyMetricRepository,
+    private val preferencesRepository: UserPreferencesRepository,
 ) : ViewModel() {
 
     private val form = MutableStateFlow(BodyMetricFormState())
@@ -38,8 +41,9 @@ class BodyMetricsViewModel @Inject constructor(
     val uiState: StateFlow<BodyMetricsUiState> = combine(
         bodyMetricRepository.observeAll(),
         form,
-    ) { metrics, formState ->
-        BodyMetricsUiState(metrics = metrics, form = formState)
+        preferencesRepository.observeUseMetric(),
+    ) { metrics, formState, useMetric ->
+        BodyMetricsUiState(metrics = metrics, form = formState, useMetric = useMetric)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), BodyMetricsUiState())
 
     fun updateWeight(value: String) = form.update { it.copy(weightKg = value) }

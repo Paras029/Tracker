@@ -40,3 +40,11 @@ fun formatPace(secondsPerKm: Int?): String? {
     val seconds = secondsPerKm % 60
     return "%d:%02d /km".format(minutes, seconds)
 }
+
+fun formatDistance(distanceMeters: Double, useMetric: Boolean): String =
+    if (useMetric) "%.2f km".format(distanceMeters / 1000.0)
+    else "%.2f mi".format(distanceMeters / 1609.344)
+
+fun formatWeight(weightKg: Double, useMetric: Boolean): String =
+    if (useMetric) "%.1f kg".format(weightKg)
+    else "%.1f lbs".format(weightKg * 2.20462)

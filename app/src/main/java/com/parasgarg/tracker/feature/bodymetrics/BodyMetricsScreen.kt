@@ -31,6 +31,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.parasgarg.tracker.core.util.formatSessionTime
+import com.parasgarg.tracker.core.util.formatWeight
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,7 +64,7 @@ fun BodyMetricsScreen(
                 OutlinedTextField(
                     value = uiState.form.weightKg,
                     onValueChange = viewModel::updateWeight,
-                    label = { Text("Weight (kg)") },
+                    label = { Text(if (uiState.useMetric) "Weight (kg)" else "Weight (lbs)") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.weight(1f),
                 )
@@ -104,7 +105,7 @@ fun BodyMetricsScreen(
                         ListItem(
                             headlineContent = {
                                 val parts = buildList {
-                                    metric.weightKg?.let { add("%.1f kg".format(it)) }
+                                    metric.weightKg?.let { add(formatWeight(it, uiState.useMetric)) }
                                     metric.bodyFatPercent?.let { add("%.1f%% fat".format(it)) }
                                     metric.restingHeartRate?.let { add("$it bpm") }
                                 }

@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.parasgarg.tracker.core.util.formatSessionTime
+import com.parasgarg.tracker.core.util.formatWeight
 import com.parasgarg.tracker.core.util.workoutSummary
 import com.parasgarg.tracker.core.util.workoutTypeLabel
 import com.parasgarg.tracker.data.model.domain.WellnessMetric
@@ -102,7 +103,7 @@ fun DashboardScreen(
                         Text("Latest weight", style = MaterialTheme.typography.labelMedium)
                         val latest = uiState.latestBodyMetric
                         Text(
-                            latest?.weightKg?.let { "%.1f kg".format(it) }
+                            latest?.weightKg?.let { formatWeight(it, uiState.useMetric) }
                                 ?: "No body metrics logged yet. Tap to add.",
                             style = MaterialTheme.typography.bodyMedium,
                         )

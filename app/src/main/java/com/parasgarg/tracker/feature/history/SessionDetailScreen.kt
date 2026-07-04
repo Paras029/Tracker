@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.parasgarg.tracker.core.designsystem.GeminiCoachingCard
+import com.parasgarg.tracker.core.util.formatDistance
 import com.parasgarg.tracker.core.util.formatPace
 import com.parasgarg.tracker.core.util.formatSessionTime
 import com.parasgarg.tracker.core.util.workoutTypeLabel
@@ -90,7 +91,7 @@ fun SessionDetailScreen(
                         }
                     }
                     is WorkoutDetail.Cardio -> {
-                        Text("Distance: %.2f km".format(detail.distanceMeters / 1000.0))
+                        Text("Distance: ${formatDistance(detail.distanceMeters, uiState.useMetric)}")
                         formatPace(detail.avgPaceSecondsPerKm)?.let { Text("Avg pace: $it") }
                         detail.poolLengthMeters?.let { Text("Pool length: $it m") }
                         detail.laps?.let { Text("Laps: $it") }

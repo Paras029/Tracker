@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.parasgarg.tracker.data.model.domain.BodyMetric
 import com.parasgarg.tracker.data.model.domain.WellnessMetric
 import com.parasgarg.tracker.data.model.domain.WorkoutSession
+import com.parasgarg.tracker.data.preferences.UserPreferencesRepository
 import com.parasgarg.tracker.data.repository.BodyMetricRepository
 import com.parasgarg.tracker.data.repository.WellnessRepository
 import com.parasgarg.tracker.data.repository.WorkoutRepository
@@ -27,6 +28,7 @@ data class DashboardUiState(
     val latestBodyMetric: BodyMetric? = null,
     val todayWellness: WellnessMetric? = null,
     val healthScore: Int? = null,
+    val useMetric: Boolean = true,
 )
 
 private const val RECENT_SESSION_LIMIT = 5
@@ -37,6 +39,7 @@ class DashboardViewModel @Inject constructor(
     bodyMetricRepository: BodyMetricRepository,
     wellnessRepository: WellnessRepository,
     private val wearableRegistry: WearableRegistry,
+    preferencesRepository: UserPreferencesRepository,
 ) : ViewModel() {
 
     init {
@@ -49,7 +52,8 @@ class DashboardViewModel @Inject constructor(
         workoutRepository.observeSessions(),
         bodyMetricRepository.observeLatest(),
         wellnessRepository.observeForDate(LocalDate.now()),
-    ) { sessions, latestBodyMetric, todayWellness ->
+        preferencesRepository.observeUseMetric(),
+    ) { sessions, latestBodyMetric, todayWellness, useMetric ->
         val weekAgo = Instant.now().minus(7, ChronoUnit.DAYS)
         val thisWeek = sessions.filter { it.startTime.isAfter(weekAgo) }
         DashboardUiState(
@@ -59,6 +63,7 @@ class DashboardViewModel @Inject constructor(
             latestBodyMetric = latestBodyMetric,
             todayWellness = todayWellness,
             healthScore = computeHealthScore(thisWeek.size, todayWellness),
+            useMetric = useMetric,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DashboardUiState())
 

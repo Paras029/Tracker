@@ -9,6 +9,7 @@ import com.parasgarg.tracker.core.util.workoutTypeLabel
 import com.parasgarg.tracker.data.model.WorkoutType
 import com.parasgarg.tracker.data.model.domain.WorkoutDetail
 import com.parasgarg.tracker.data.model.domain.WorkoutSession
+import com.parasgarg.tracker.data.preferences.UserPreferencesRepository
 import com.parasgarg.tracker.data.repository.UserProfileRepository
 import com.parasgarg.tracker.data.repository.WorkoutRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,12 +28,14 @@ data class SessionDetailUiState(
     val isDeleted: Boolean = false,
     val coachingTip: String? = null,
     val isTipLoading: Boolean = false,
+    val useMetric: Boolean = true,
 )
 
 @HiltViewModel
 class SessionDetailViewModel @Inject constructor(
     private val workoutRepository: WorkoutRepository,
     private val profileRepository: UserProfileRepository,
+    private val preferencesRepository: UserPreferencesRepository,
     private val geminiService: GeminiService,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
@@ -47,8 +50,15 @@ class SessionDetailViewModel @Inject constructor(
         workoutRepository.observeSession(sessionId),
         isDeletedFlow,
         _tipState,
-    ) { session, isDeleted, (tip, loading) ->
-        SessionDetailUiState(session = session, isDeleted = isDeleted, coachingTip = tip, isTipLoading = loading)
+        preferencesRepository.observeUseMetric(),
+    ) { session, isDeleted, (tip, loading), useMetric ->
+        SessionDetailUiState(
+            session = session,
+            isDeleted = isDeleted,
+            coachingTip = tip,
+            isTipLoading = loading,
+            useMetric = useMetric,
+        )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SessionDetailUiState())
 
     fun delete() {
