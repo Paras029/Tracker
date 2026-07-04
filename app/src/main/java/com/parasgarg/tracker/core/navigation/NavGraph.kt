@@ -2,14 +2,11 @@ package com.parasgarg.tracker.core.navigation
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -88,11 +85,6 @@ fun TrackerNavGraph() {
                 }
             }
         },
-        floatingActionButton = {
-            FloatingActionButton(onClick = { navController.navigate(Destination.LogWorkoutPicker.route) }) {
-                Icon(Icons.Filled.Add, contentDescription = "Log workout")
-            }
-        },
     ) { contentPadding ->
         NavHost(
             navController = navController,
@@ -108,9 +100,12 @@ fun TrackerNavGraph() {
                 )
             }
             composable(Destination.History.route) {
-                HistoryScreen(onSessionClick = { sessionId ->
-                    navController.navigate(Destination.SessionDetail.createRoute(sessionId))
-                })
+                HistoryScreen(
+                    onSessionClick = { sessionId ->
+                        navController.navigate(Destination.SessionDetail.createRoute(sessionId))
+                    },
+                    onLogWorkout = { navController.navigate(Destination.LogWorkoutPicker.route) },
+                )
             }
             composable(Destination.Reports.route) { ReportsScreen() }
             composable(Destination.Nutrition.route) { NutritionScreen() }
